@@ -1,0 +1,14 @@
+
+NOTE - Patcher, Launcher names are used synonamously in this project as technically the client is a patcher and launcher.
+
+This RawFiles/ folder is to place where you want the client files to be checked against.
+
+The files in the below folders will be compresses and put in the CompressedFiles/ folder in their perspective subfolders.
+
+The RawFiles/Launcher/ folder is for the patcher client files, these are checked first and the patcher is reloaded if updated, before game files are checked.
+
+The RawFiles/Game/ folder is for all game files that would be in the Game/ folder of the client
+
+
+See the code for how things are implemented and for instructions and examples, if you want to change things up.
+

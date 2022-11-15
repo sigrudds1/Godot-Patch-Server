@@ -1,0 +1,53 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Node",
+"class": "FileTool",
+"language": "GDScript",
+"path": "res://Scripts/Statics/cFileTool.gd"
+}, {
+"base": "Node",
+"class": "Net",
+"language": "GDScript",
+"path": "res://Scripts/Statics/cNet.gd"
+}, {
+"base": "Node",
+"class": "Utils",
+"language": "GDScript",
+"path": "res://Scripts/Statics/cUtils.gd"
+} ]
+_global_script_class_icons={
+"FileTool": "",
+"Net": "",
+"Utils": ""
+}
+
+[application]
+
+config/name="Patcher Server"
+run/main_scene="res://Main.tscn"
+config/icon="res://icon.png"
+
+[autoload]
+
+Glb="*res://Scripts/Autoload/aGlb.gd"
+
+[gui]
+
+common/drop_mouse_on_gui_input_disabled=true
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+environment/default_environment="res://default_env.tres"
