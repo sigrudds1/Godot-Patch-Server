@@ -58,8 +58,10 @@ func _ready() -> void:
 	_compression_ext_ = FileTool.get_compress_type_ext(kCompressTypeID)
 	var cfd: String = Glb.exe_dir + kCompressedir
 	if !FileTool.file_exists(cfd + kPatcherManifest_fn):
+# warning-ignore:return_value_discarded
 		FileTool.save_json(cfd + kPatcherManifest_fn, {}, true)
 	if !FileTool.file_exists(cfd + kGameManifest_fn):
+# warning-ignore:return_value_discarded
 		FileTool.save_json(cfd + kGameManifest_fn, {}, true)
 	var err = _update_thr_.start(self, "m_update_manifest_thr")
 	if err:
