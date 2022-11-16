@@ -124,7 +124,7 @@ func m_build_manifest(p_search_path: String, p_manifest: Dictionary,
 					os_dir[fn]["comp_type"] =  kCompressTypeID
 					os_dir[fn]["md5hash"] = md5hash
 				else:
-					print("Error compressing file:", from_file)
+					printerr("Error compressing file:", from_file)
 			
 			if !FileTool.file_exists(os_dir[fn]["comp_file"]):
 				var comp_path:String = FileTool.compress(from_file, 
@@ -145,12 +145,12 @@ func m_build_manifest(p_search_path: String, p_manifest: Dictionary,
 	
 	if _manifest_changed_:
 		if FileTool.save_json(p_json_path, p_manifest, true) != OK:
-			print("error saving manifest")
+			printerr("error saving manifest")
 
 
 func m_check_for_tcp() -> void:
 	if _tcp_server_ == null:
-		print("server off")
+		printerr("server off")
 		return
 	if _tcp_server_.is_connection_available():
 		var tcp_peer:StreamPeerTCP = _tcp_server_.take_connection()
@@ -174,12 +174,12 @@ func m_get_tx_manifest(p_peer_list: Dictionary, p_srvr_list: Dictionary) -> Dict
 	for fn_key in p_srvr_list.keys():
 		add_file = false
 		if !p_srvr_list[fn_key].has_all(["md5hash", "comp_file"]):
-			print("Server manifest missing keys!")
+			printerr("Server manifest missing keys!")
 			continue
 		
 		if p_peer_list.has(fn_key):
 			if !p_peer_list[fn_key].has("md5hash"):
-				print("Peer manifest missing hash key!")
+				printerr("Peer manifest missing hash key!")
 				continue
 			else:
 				add_file = p_peer_list[fn_key]["md5hash"] != p_srvr_list[fn_key]["md5hash"]
@@ -216,11 +216,11 @@ func m_start_listening() -> void:
 func m_tcp_thread(p_d: Dictionary) -> void:
 	var thr:Thread = p_d.thread
 	var peer: StreamPeerTCP = p_d.tcp_peer
-	print("Connected Peer:", peer.get_connected_host(), ":", peer.get_connected_port(), "\n")
+#	print("Connected Peer:", peer.get_connected_host(), ":", peer.get_connected_port(), "\n")
 	var idle_tm: int = Time.get_ticks_msec() + kConnTimeout_MS
 	while Time.get_ticks_msec() < idle_tm: 
 		var pd: Dictionary = Net.get_dict_data(peer, kConnTimeout_MS)
-		print("pd:", pd)
+#		print("pd:", pd)
 		if pd.has("func"):
 			match pd.func:
 				Glb.FUNC_UPDATE_LAUNCHER:
@@ -249,7 +249,7 @@ func m_tcp_thread(p_d: Dictionary) -> void:
 		else:
 			break
 	
-	print("Disonnecting Peer:", peer.get_connected_host())
+#	print("Disonnecting Peer:", peer.get_connected_host())
 	peer = Net.tcp_disconnect(peer)
 	call_deferred("m_tcp_thread_finished", thr)
 
@@ -266,21 +266,30 @@ func m_thread_finished(p_thr: Thread) -> void:
 
 func m_update_client(p_peer: StreamPeerTCP, p_peerdata: Dictionary, 
 		p_manifest: Dictionary) -> int:
-	var ip: String = p_peer.get_connected_host()
-	var port: int =  p_peer.get_connected_port()
-	print()
-	print("Main.m_update_client()", ip, ":", port)
+#	var ip: String = p_peer.get_connected_host()
+#	var port: int =  p_peer.get_connected_port()
+#	print()
+#	print("Main.m_update_client()", ip, ":", port)
+#	print("p_peerdata:", p_peerdata)
 	if !p_peerdata.has("os"):
-		print("Main.update_client no os key")
+#		print("Main.update_client no os key")
 		return ERR_INVALID_DATA
+	
 	if !p_manifest.has(p_peerdata.os):
-		return ERR_DOES_NOT_EXIST
+		#no files for manifest to create, assume intended
+#		print("No files for OS:", p_peerdata["os"])
+		p_peer.put_var({
+			"func": Glb.FUNC_TOTAL_BYTES,
+			"status": Glb.STATUS_DONE
+			})
+		return OK
 	
 	var osm: Dictionary = p_manifest[p_peerdata.os]
 	if !p_peerdata.has("manifest"):
 		return ERR_INVALID_DATA
 	
 	var tx: Dictionary = m_get_tx_manifest(p_peerdata.manifest, osm)
+#	print("tx:", tx)
 	if tx == {}:
 		printerr("Main.update_client error getting mainfest")
 		return ERR_QUERY_FAILED
@@ -310,11 +319,11 @@ func m_update_client(p_peer: StreamPeerTCP, p_peerdata: Dictionary,
 	
 	#rcvd cont tx files
 	for fn in tx.files.keys():
-		print("out:", {
-			"file": fn,
-			"type": tx.files[fn]["comp_type"],
-			"size": tx.files[fn]["size"]
-			})
+#		print("out:", {
+#			"file": fn,
+#			"type": tx.files[fn]["comp_type"],
+#			"size": tx.files[fn]["size"]
+#			})
 		p_peer.put_var({
 			"file": fn,
 			"type": tx.files[fn]["comp_type"],
@@ -351,6 +360,11 @@ func m_update_manifest_thr(_void) -> void:
 	var cfd: String = Glb.exe_dir + kCompressedir
 	_patcher_manifest_ = FileTool.read_json(cfd + kPatcherManifest_fn)
 	_game_manifest_ = FileTool.read_json(cfd + kGameManifest_fn)
+#	for os in kOSes:
+#		if !_patcher_manifest_.has(os):
+#			_patcher_manifest_[os] = {}
+#		if !_game_manifest_.has(os):
+#			_game_manifest_[os] = {}
 	_live_patcher_manifest_ = _patcher_manifest_.duplicate(true)
 	_live_game_manifest_ = _game_manifest_.duplicate(true)
 	while _running_:
@@ -368,7 +382,7 @@ func m_update_manifest_thr(_void) -> void:
 				cfd + kGameDir)
 		
 		if _manifest_changed_:
-			print("manifest changed")
+#			print("manifest changed")
 			while _tcp_conns_ > 0:
 				pass
 			_patcher_manifest_ = FileTool.read_json(cfd + kPatcherManifest_fn)
