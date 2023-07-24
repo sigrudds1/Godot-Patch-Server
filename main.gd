@@ -153,7 +153,7 @@ func m_check_for_tcp() -> void:
 		printerr("server off")
 		return
 	if _tcp_server_.is_connection_available():
-		var tcp_peer:StreamPeerTCP = _tcp_server_.take_connection()
+		var tcp_peer: StreamPeerTCP = _tcp_server_.take_connection()
 		if _tcp_conns_ < kMaxConn || !_manifest_changed_:
 			var thr := Thread.new()
 			var err = thr.start(self, "m_tcp_thread", {
@@ -235,7 +235,7 @@ func m_tcp_thread(p_d: Dictionary) -> void:
 						break
 					idle_tm = Time.get_ticks_msec() + kConnTimeout_MS
 				Glb.FUNC_UPDATE_GAME:
-					#blocking will need to get bytes in func
+					# blocking will need to get bytes in func
 					var err: int = m_update_client(peer, pd, _live_game_manifest_)
 					if err != OK:
 						print("Main.m_tcp_thread() Error Sending Game Patch")
